@@ -1,73 +1,64 @@
 package main
 
 import (
+    "./a"
     //"fmt"
     "math/rand"
     "time"
+    //"net/http"
 )
 
-type Student struct {
-    id int
-}
-type Class struct {
-    id int
-    roster []Student
-}
-type Teacher struct {
-    id int
-    classes []Class
-}
+func newStudents(n int) []databaseTypes.Student {
 
-func newStudents(n int) []Student {
-
-    students := make([]Student, n)
+    students := make([]databaseTypes.Student, n)
 
     for i := range students {
-        students[i].id = 300 + i
+        students[i].SetID(300+i)
     }
 
     return students
 }
-func newClasses(n int) []Class {
-    classes := make([]Class, n)
+func newClasses(n int) []databaseTypes.Class {
+    classes := make([]databaseTypes.Class, n)
 
     for i := range classes {
-        classes[i].id = i
-        classes[i].roster = make([]Student, 0)
+        classes[i].SetID(i)
+        classes[i].SetRoster(make([]databaseTypes.Student, 0))
     }
-
     return classes
 }
-func newTeachers(n int) []Teacher {
+func newTeachers(n int) []databaseTypes.Teacher {
 
-    teachers := make([]Teacher, n)
+    teachers := make([]databaseTypes.Teacher, n)
 
     for i := range teachers {
-        teachers[i].id = 100 + i
+        teachers[i].SetID(100+i)
     }
 
     return teachers
 }
 
-
-func main() {
+func main () {
+    //create a database of students, teachers, and classes randomly assigned to each other
     numStudents := 120
     classSize := 30
     numClasses := 15
     numTeachers := 5
 
     r := rand.New(rand.NewSource(time.Now().UnixNano()))
-     
+    
     students := newStudents(numStudents)
     classes := newClasses(numClasses)
     teachers := newTeachers(numTeachers)
  
-    for classIndex := range classes {
+    for _, class := range classes {
         for _, studentIndex := range r.Perm(120)[:classSize]   {
-            classes[classIndex].roster = append(classes[classIndex].roster, students[studentIndex])
+            class.AddStudent(students[studentIndex])
         }
         teacherIndex := r.Intn(numTeachers)
 
-        teachers[teacherIndex].classes = append(teachers[teacherIndex].classes, classes[classIndex])
+        class.UpdateTeacher(teachers[teacherIndex])
     }
+
+    //receive API calls
 }
